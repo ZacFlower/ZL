@@ -108,6 +108,34 @@ Lần đầu đăng nhập Google sẽ cảnh báo *“Google chưa xác minh �
 - **Xóa** = chuyển vào Thùng rác của Drive (khôi phục được trong 30 ngày).
 - Thư mục gốc nên để chia sẻ **“Bất kỳ ai có liên kết – Người xem”** (không phải *Người chỉnh sửa*), web công khai vẫn hiển thị bình thường.
 
+## Nhận đơn đặt hoa (Google Sheet + email, Zalo, WhatsApp)
+
+Trong popup mẫu hoa có nút **🌸 Đặt hoa ngay** → khách điền form (loại giá, họ tên, SĐT, giao tận nơi / nhận tại shop, ngày giờ, địa chỉ, người nhận, lời nhắn thiệp, ghi chú) →
+
+1. Đơn được **lưu vào Google Sheet** (trang tính “Đơn hàng”, có cột *Trạng thái* để theo dõi) và **gửi email** cho shop ngay lập tức.
+2. Khách được mời gửi tiếp qua **Zalo** (đơn tự sao chép, mở chat Zalo của shop → dán) hoặc **WhatsApp** (tin nhắn điền sẵn, chỉ cần bấm gửi).
+
+Chưa cài bước 1 thì web vẫn chạy: khách đặt thẳng qua Zalo / WhatsApp.
+
+### Cài máy chủ nhận đơn (Google Apps Script, miễn phí)
+
+1. Mở Google Sheet dùng làm sổ đơn (vd **db_hoa**) → **Tiện ích mở rộng → Apps Script**.
+2. Xóa code mẫu, dán toàn bộ nội dung file [`apps-script/Code.gs`](apps-script/Code.gs) → **Lưu** (💾).
+3. Chọn hàm **`caiDat`** ở thanh trên → **Chạy** → cấp quyền (*Nâng cao → Đi tới … (không an toàn) → Cho phép*).
+   Sheet sẽ có thêm 2 trang tính **“Đơn hàng”**, **“Cài đặt”**, và bạn nhận được **1 email thử**.
+4. **Triển khai → Tùy chọn triển khai mới** → biểu tượng ⚙ → **Ứng dụng web**:
+   - *Thực thi với tư cách*: **Tôi**
+   - *Người có quyền truy cập*: **Bất kỳ ai**
+   → **Triển khai** → copy **URL ứng dụng web** (dạng `https://script.google.com/macros/s/…/exec`).
+5. Dán URL vào `.env`: `VITE_ORDER_ENDPOINT=https://script.google.com/macros/s/…/exec`
+   và trên GitHub: **Settings → Secrets and variables → Actions → Variables** → `VITE_ORDER_ENDPOINT` → chạy lại workflow.
+
+**Đổi email nhận đơn**: sửa ô **B2** trang tính **“Cài đặt”** (nhiều email cách nhau bằng dấu phẩy) — có hiệu lực ngay, không cần sửa code.
+Mặc định: `vinhq1618@gmail.com`. Ô **B3** là tiêu đề email.
+
+> Sửa `Code.gs` sau này thì phải **Triển khai → Quản lý triển khai → ✏️ → Phiên bản mới → Triển khai** (URL giữ nguyên).
+> Gmail cá nhân gửi tối đa ~100 email/ngày qua Apps Script.
+
 ## Build & deploy
 
 ```bash
