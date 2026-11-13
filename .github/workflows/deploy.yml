@@ -37,6 +37,7 @@ jobs:
           VITE_SHOP_ADDRESS: ${{ vars.VITE_SHOP_ADDRESS }}
           VITE_SHOP_WEBSITE: ${{ vars.VITE_SHOP_WEBSITE }}
           VITE_SHOP_FACEBOOK: ${{ vars.VITE_SHOP_FACEBOOK }}
+          VITE_ORDER_ENDPOINT: ${{ vars.VITE_ORDER_ENDPOINT }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

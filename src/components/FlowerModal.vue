@@ -1,6 +1,7 @@
 <script setup>
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { categoryLabel, formatPrice } from '../composables/useFlowers'
+import OrderForm from './OrderForm.vue'
 
 const props = defineProps({
   flower: { type: Object, required: true },
@@ -17,8 +18,13 @@ function go(step) {
 }
 
 const zaloLink = computed(() => (props.shop.zalo ? `https://zalo.me/${props.shop.zalo}` : ''))
+const ordering = ref(false)
 
 function onKey(e) {
+  if (ordering.value) {
+    if (e.key === 'Escape') ordering.value = false
+    return
+  }
   if (e.key === 'Escape') emit('close')
   else if (e.key === 'ArrowRight') go(1)
   else if (e.key === 'ArrowLeft') go(-1)
@@ -75,13 +81,16 @@ onUnmounted(() => {
         </ul>
 
         <div class="actions">
-          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn">Gọi đặt hoa</a>
+          <button class="btn" @click="ordering = true">🌸 Đặt hoa ngay</button>
+          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn ghost">Gọi</a>
           <a v-if="zaloLink" :href="zaloLink" target="_blank" rel="noopener" class="btn ghost">Zalo</a>
           <a v-if="shop.whatsapp" :href="`https://wa.me/${shop.whatsapp}`" target="_blank" rel="noopener" class="btn ghost">WhatsApp</a>
         </div>
         <p class="hint">Mã mẫu <code>{{ flower.id.slice(0, 10) }}</code> · gửi kèm khi đặt hoa nhé</p>
       </div>
     </div>
+
+    <OrderForm v-if="ordering" :flower="flower" @close="ordering = false" />
   </div>
 </template>
 
