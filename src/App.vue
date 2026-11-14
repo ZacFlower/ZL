@@ -1,8 +1,8 @@
 <script setup>
-import { defineAsyncComponent, onMounted, ref } from 'vue'
-import { route } from './router'
+import { defineAsyncComponent, onMounted, ref, watch } from 'vue'
+import { go, route } from './router'
 import { shop } from './shop'
-import { loadCatalog } from './composables/useFlowers'
+import { flowers, loadCatalog } from './composables/useFlowers'
 import AppHeader from './components/AppHeader.vue'
 import HomePage from './components/HomePage.vue'
 import CategoryPage from './components/CategoryPage.vue'
@@ -20,6 +20,21 @@ function openFlower(flower, list) {
   modalList.value = list?.length ? list : [flower]
 }
 
+// Link #/mau/<id>: mở popup mẫu đó khi dữ liệu đã tải
+watch(
+  [() => route.value.name === 'design' && route.value.id, flowers],
+  ([id]) => {
+    if (!id) return
+    const f = flowers.value.find((x) => x.id === id)
+    if (f) openFlower(f, flowers.value.filter((x) => x.category === f.category))
+  },
+  { immediate: true },
+)
+function closeFlower() {
+  selected.value = null
+  if (route.value.name === 'design') go('/')
+}
+
 onMounted(() => loadCatalog())
 </script>
 
@@ -30,7 +45,7 @@ onMounted(() => loadCatalog())
     <AppHeader />
 
     <main>
-      <HomePage v-if="route.name === 'home'" @open="openFlower" />
+      <HomePage v-if="route.name === 'home' || route.name === 'design'" @open="openFlower" />
       <CategoryPage v-else :key="`${route.cat}/${route.sub}`" @open="openFlower" />
     </main>
 
@@ -43,7 +58,7 @@ onMounted(() => loadCatalog())
         :flower="selected"
         :list="modalList"
         :shop="shop"
-        @close="selected = null"
+        @close="closeFlower"
         @navigate="selected = $event"
       />
     </Transition>
