@@ -43,6 +43,8 @@ export function orderText(o) {
     `🌸 ĐẶT HOA – ${shop.name}`,
     `Mã đơn: ${o.code}`,
     `Mẫu: ${o.flowerName}${o.variant ? ` (${o.variant})` : ''}`,
+    o.image && `Ảnh mẫu: ${o.image}`,
+    o.link && `Xem mẫu: ${o.link}`,
     `Giá: ${o.price ? Number(o.price).toLocaleString('vi-VN') + ' ₫' : 'Liên hệ'}`,
     `Khách: ${o.customerName} – ${o.customerPhone}`,
     `Hình thức: ${o.delivery}`,

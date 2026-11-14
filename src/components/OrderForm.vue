@@ -5,6 +5,8 @@ import {
   copyText, makeOrderCode, orderEndpoint, orderText, submitOrder, whatsappLink, zaloLink,
 } from '../services/order'
 import { shop } from '../shop'
+import { imageUrl } from '../services/drive'
+import { designLink } from '../router'
 import { t, trName, trVariant } from '../i18n'
 
 const props = defineProps({ flower: { type: Object, required: true } })
@@ -73,7 +75,9 @@ function buildOrder() {
     category: categoryLabel(props.flower),
     variant: p?.label || '',
     price: p?.price ?? '',
-    image: props.flower.thumb?.startsWith('http') ? props.flower.thumb : '',
+    // Ảnh lớn + link mở thẳng mẫu trên web (shop bấm vào là thấy đúng mẫu khách đặt)
+    image: props.flower.thumb?.startsWith('http') ? imageUrl(props.flower.id, 1200) : '',
+    link: designLink(props.flower.id),
     customerName: form.customerName.trim(),
     customerPhone: form.customerPhone.trim(),
     delivery: form.delivery,
