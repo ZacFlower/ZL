@@ -1,0 +1,44 @@
+# Cấu hình deploy Netlify — Netlify tự đọc file này, không cần điền tay phần Build settings.
+# Chỉ còn phải khai báo 4 biến bí mật trong: Site configuration → Environment variables
+#   VITE_GDRIVE_API_KEY, VITE_GDRIVE_FOLDER_ID, VITE_GOOGLE_CLIENT_ID, VITE_ADMIN_EMAILS
+#   (+ VITE_ORDER_ENDPOINT khi đã cài máy chủ nhận đơn)
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+  # Thông tin cửa hàng (không bí mật) — sửa ở đây rồi push là web cập nhật
+  VITE_SHOP_NAME = "Zacflower"
+  VITE_SHOP_PHONE = "090 528 29 21"
+  VITE_SHOP_ZALO = "0905282921"
+  VITE_SHOP_WHATSAPP = "84905282921"
+  VITE_SHOP_ADDRESS = "65 Ngũ Hành Sơn, Đà Nẵng"
+  VITE_SHOP_WEBSITE = "https://zacflower.com"
+
+  # Các biến VITE_* luôn được nhúng vào mã web (chạy trên trình duyệt) — đó là chủ ý, key đã giới hạn theo domain.
+  # Tắt chặn build của bộ quét "secret" của Netlify cho các biến này để deploy không bị lỗi.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_GDRIVE_API_KEY,VITE_GDRIVE_FOLDER_ID,VITE_GOOGLE_CLIENT_ID,VITE_ADMIN_EMAILS,VITE_ORDER_ENDPOINT"
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+
+# File JS/CSS có mã băm trong tên → cache lâu dài
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# index.html luôn lấy bản mới nhất sau mỗi lần deploy
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    # Giữ origin khi gọi Google API (API key kiểm tra theo domain)
+    Referrer-Policy = "strict-origin-when-cross-origin"
