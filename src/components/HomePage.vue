@@ -198,8 +198,10 @@ h1 em { color: var(--primary-deep); }
 .sec-head h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 26px; text-transform: uppercase; position: relative; }
 .sec-head h2::after { content: ''; position: absolute; left: 0; bottom: -13px; width: 64px; height: 2px; background: var(--primary); }
 .sec-head h2 a { color: inherit; text-decoration: none; }
-.sub-links { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.sub-links { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.sub-links::-webkit-scrollbar { display: none; }
 .sub-links a {
+  flex: none; white-space: nowrap;
   padding: 5px 12px; border-radius: 999px; font-size: 13px; text-decoration: none; color: #6d5f62;
   box-shadow: inset 0 0 0 1px var(--line); transition: all .25s;
 }
@@ -228,7 +230,11 @@ h1 em { color: var(--primary-deep); }
   .tile-empty { font-size: 54px; }
   .block { padding-top: 40px; }
   .sec-head h2 { font-size: 21px; }
-  .sub-links { order: 3; flex-basis: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .sub-links {
+    order: 3; flex-basis: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin: 6px -16px 0; padding: 2px 16px; /* cuộn ngang sát mép màn hình */
+  }
+  .sub-links a { padding: 7px 14px; }
 }
 @media (max-width: 480px) {
   .services-grid { grid-template-columns: 1fr 1fr; gap: 14px; padding: 18px 0; }
