@@ -13,12 +13,19 @@ export const flowers = ref([])
 export const categories = ref([])
 export const loading = ref(true)
 export const error = ref('')
-export const isDemo = !isDriveConfigured()
+/**
+ * Dữ liệu mẫu chỉ dùng khi chạy thử trên máy (npm run dev / dev:demo).
+ * Trên web thật (build production) thiếu cấu hình Drive thì báo lỗi rõ ràng,
+ * không lặng lẽ hiện hoa + giá giả cho khách.
+ */
+const allowDemo = import.meta.env.DEV || import.meta.env.MODE === 'demo'
+export const isDemo = !isDriveConfigured() && allowDemo
 
 export async function loadCatalog(force = false) {
   loading.value = true
   error.value = ''
   try {
+    if (!isDriveConfigured() && !allowDemo) throw new Error(t('errNotConfigured'))
     const data = isDemo ? demoData : await fetchFlowersFromDrive({ force })
     flowers.value = data.flowers
     categories.value = data.categories
