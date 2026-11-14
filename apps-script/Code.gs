@@ -37,6 +37,7 @@ const COLUMNS = [
   ['Ghi chú', 'note'],
   ['Mã mẫu', 'flowerId'],
   ['Ảnh mẫu', 'image'],
+  ['Link mẫu', 'link'],
 ]
 
 /* ============ Nhận đơn từ website ============ */
@@ -136,7 +137,12 @@ function sanitize_(d) {
 function ordersSheet_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet()
   let sh = ss.getSheetByName(SHEET_ORDERS)
-  if (!sh) {
+  if (sh) {
+    // Sheet tạo từ bản cũ: bổ sung tiêu đề cột mới (vd "Link mẫu")
+    const header = sh.getRange(1, 1, 1, COLUMNS.length)
+    const labels = COLUMNS.map(([label]) => label)
+    if (header.getValues()[0].join('|') !== labels.join('|')) header.setValues([labels]).setFontWeight('bold').setBackground('#fbecee')
+  } else {
     sh = ss.insertSheet(SHEET_ORDERS, 0)
     sh.appendRow(COLUMNS.map(([label]) => label))
     sh.setFrozenRows(1)
@@ -179,7 +185,8 @@ function sendEmail_(o) {
 
   const rows = [
     ['Mã đơn', '<b>' + esc(o.code) + '</b>'],
-    ['Mẫu hoa', esc(o.flowerName) + (o.variant ? ' — <b>' + esc(o.variant) + '</b>' : '')],
+    ['Mẫu hoa', esc(o.flowerName) + (o.variant ? ' — <b>' + esc(o.variant) + '</b>' : '') +
+      (o.link ? ' · <a href="' + esc(o.link) + '">Xem mẫu trên web</a>' : '')],
     ['Danh mục', esc(o.category)],
     ['Giá', '<b style="color:#b9677a">' + money(o.price) + '</b>'],
     ['Khách hàng', esc(o.customerName)],
@@ -195,7 +202,7 @@ function sendEmail_(o) {
   const html =
     '<div style="font-family:Arial,sans-serif;max-width:560px;color:#43373a">' +
     '<h2 style="color:#b9677a;margin:0 0 12px">🌸 Đơn đặt hoa mới – ' + esc(o.code) + '</h2>' +
-    (o.image ? '<img src="' + esc(o.image) + '" alt="" style="width:220px;border-radius:12px;margin-bottom:12px">' : '') +
+    (o.image ? '<a href="' + esc(o.link || o.image) + '"><img src="' + esc(o.image) + '" alt="" style="width:220px;border-radius:12px;margin-bottom:12px"></a>' : '') +
     '<table style="border-collapse:collapse;width:100%;font-size:14px">' +
     rows.map(([k, v]) => '<tr><td style="padding:6px 10px;background:#fdf6f5;width:130px;vertical-align:top">' + k + '</td><td style="padding:6px 10px">' + v + '</td></tr>').join('') +
     '</table>' +
