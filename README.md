@@ -154,6 +154,20 @@ npm run build
 
 Thư mục `dist/` là web tĩnh — deploy lên Netlify, Vercel, GitHub Pages, Firebase Hosting… (nhớ khai báo các biến `VITE_*` trong phần Environment variables của nơi deploy).
 
+### Netlify
+
+Cấu hình sẵn trong [`netlify.toml`](netlify.toml): build command, thư mục `dist`, Node 22, thông tin cửa hàng, cache và header bảo mật.
+
+1. Netlify → **Add new site → Import an existing project → GitHub** → chọn repo **ZacFlower/ZL**, nhánh `main`
+   (các ô Build command / Publish directory tự điền từ `netlify.toml`, không cần sửa).
+2. **Site configuration → Environment variables → Add a variable**, thêm (giá trị lấy từ `.env`, **không** tích *Contains secret values*):
+   `VITE_GDRIVE_API_KEY`, `VITE_GDRIVE_FOLDER_ID`, `VITE_GOOGLE_CLIENT_ID`, `VITE_ADMIN_EMAILS`
+   (+ `VITE_ORDER_ENDPOINT` khi đã cài máy chủ nhận đơn).
+3. **Deploys → Trigger deploy → Deploy site**.
+4. Google Cloud → Credentials: thêm `https://<tên-site>.netlify.app/*` vào API key và `https://<tên-site>.netlify.app` vào OAuth client (*Authorized JavaScript origins*).
+
+Đổi thông tin cửa hàng (SĐT, địa chỉ…) cho bản Netlify: sửa mục `[build.environment]` trong `netlify.toml` rồi push.
+
 ## Cấu trúc code
 
 | File | Vai trò |
