@@ -16,6 +16,8 @@ const isNew = !props.item
 const name = ref(props.item?.name || '')
 const folderId = ref(props.item?.folderId || props.defaultFolderId || props.folders[0]?.id || '')
 const description = ref(props.item?.description || '')
+const nameEn = ref(props.item?.nameEn || '')
+const descriptionEn = ref(props.item?.descriptionEn || '')
 const rows = ref(
   props.item?.prices?.length
     ? props.item.prices.map((p) => ({ label: p.label, raw: String(p.price) }))
@@ -84,6 +86,8 @@ function submit() {
     folderId: folderId.value,
     prices,
     description: description.value,
+    nameEn: nameEn.value,
+    descriptionEn: descriptionEn.value,
   })
 }
 
@@ -155,6 +159,18 @@ onUnmounted(() => {
             <textarea v-model="description" rows="3" placeholder="VD: Hồng Ecuador, giấy gói Hàn Quốc tông đen…" />
           </label>
 
+          <details class="en" :open="!!(nameEn || descriptionEn)">
+            <summary>🇬🇧 Tiếng Anh <small>(không bắt buộc — để trống web tự dịch tên theo mã)</small></summary>
+            <label class="field">
+              <span>Tên tiếng Anh</span>
+              <input v-model="nameEn" type="text" placeholder="VD: Classic red rose bouquet" maxlength="120" />
+            </label>
+            <label class="field">
+              <span>Mô tả tiếng Anh</span>
+              <textarea v-model="descriptionEn" rows="2" placeholder="VD: 20 Ecuadorian red roses, Korean-style wrapping" />
+            </label>
+          </details>
+
           <p class="show">Hiển thị trên web: <b>{{ previewPrice }}</b></p>
         </div>
       </div>
@@ -214,6 +230,10 @@ textarea { resize: vertical; }
 .del { width: 32px; height: 32px; border: 0; border-radius: 50%; background: #f7eeee; color: var(--muted); }
 .del:hover { background: #fde2e2; color: #c0392b; }
 .add { justify-self: start; border: 0; background: none; color: var(--primary-deep); font-weight: 500; padding: 4px 0; }
+.en { border-radius: 12px; box-shadow: inset 0 0 0 1px #ead8db; padding: 10px 12px; }
+.en[open] { display: grid; gap: 12px; }
+.en summary { cursor: pointer; font-size: 13.5px; font-weight: 500; }
+.en summary small { color: var(--muted); font-weight: 400; }
 .show { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--sage-soft); color: #5d7564; font-size: 13.5px; }
 
 footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--line); flex-wrap: wrap; }

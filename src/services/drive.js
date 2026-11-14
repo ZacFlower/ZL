@@ -18,7 +18,7 @@
 
 const API = 'https://www.googleapis.com/drive/v3/files'
 export const FOLDER_MIME = 'application/vnd.google-apps.folder'
-const CACHE_KEY = 'flower-gallery-cache-v3'
+const CACHE_KEY = 'flower-gallery-cache-v4'
 const CACHE_TTL = 5 * 60 * 1000 // 5 phút
 
 export const driveConfig = {
@@ -113,13 +113,22 @@ export function parseMoney(raw = '') {
 export function parseDescription(text = '') {
   const prices = []
   const lines = []
+  let nameEn = ''
+  const descEn = []
   for (const line of text.split(/\r?\n/)) {
+    // Tiếng Anh (không bắt buộc): "Tên EN: Red rose bouquet" / "Mô tả EN: 20 Ecuador roses…"
+    const en = line.match(/^\s*(tên|ten|mô tả|mo ta)\s*(?:en|tiếng anh|tieng anh)\s*[:=]\s*(.*)$/i)
+    if (en) {
+      if (/^t/i.test(en[1])) nameEn = en[2].trim()
+      else if (en[2].trim()) descEn.push(en[2].trim())
+      continue
+    }
     const m = line.match(/^\s*(?:giá|gia|price)\s*([^:=]*?)\s*[:=]\s*(.+)$/i)
     const value = m ? parseMoney(m[2]) : null
     if (value != null) prices.push({ label: m[1].replace(/^[-–(]\s*|\s*[)]$/g, '').trim(), price: value })
     else lines.push(line)
   }
-  return { prices, description: lines.join('\n').trim() }
+  return { prices, description: lines.join('\n').trim(), nameEn, descriptionEn: descEn.join('\n') }
 }
 
 /**
@@ -145,10 +154,12 @@ export function byFolderName(a, b) {
 }
 
 function toFlower(file, category, subcategory = null) {
-  const { prices, description } = parseDescription(file.description)
+  const { prices, description, nameEn, descriptionEn } = parseDescription(file.description)
   return {
     id: file.id,
     name: stripExt(file.name),
+    nameEn,
+    descriptionEn,
     category,
     subcategory,
     prices,
@@ -218,9 +229,12 @@ export function clearPublicCache() {
 }
 
 /** Ghép giá + mô tả thành nội dung ô "Mô tả" trên Drive (ngược với parseDescription). */
-export function composeDescription(prices = [], description = '') {
+export function composeDescription(prices = [], description = '', { nameEn = '', descriptionEn = '' } = {}) {
   const lines = prices
     .filter((p) => p.price != null)
     .map((p) => (p.label?.trim() ? `Giá ${p.label.trim()}: ${p.price}` : `Giá: ${p.price}`))
-  return [...lines, description.trim()].filter(Boolean).join('\n')
+  const en = []
+  if (nameEn.trim()) en.push(`Tên EN: ${nameEn.trim().replace(/\s*\n\s*/g, ' ')}`)
+  for (const l of descriptionEn.split(/\r?\n/)) if (l.trim()) en.push(`Mô tả EN: ${l.trim()}`)
+  return [...lines, ...en, description.trim()].filter(Boolean).join('\n')
 }
