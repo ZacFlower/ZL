@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { formatPrice } from '../composables/useFlowers'
+import { t, trCat, trDesc, trName, trVariant } from '../i18n'
 
 const props = defineProps({ flowers: { type: Array, required: true } })
 defineEmits(['open'])
@@ -9,7 +10,7 @@ defineEmits(['open'])
 const groups = computed(() => {
   const map = new Map()
   for (const f of props.flowers) {
-    const key = f.subcategory ? `${f.category} › ${f.subcategory}` : f.category
+    const key = f.subcategory ? `${trCat(f.category)} › ${trCat(f.subcategory)}` : trCat(f.category)
     if (!map.has(key)) map.set(key, [])
     map.get(key).push(f)
   }
@@ -20,21 +21,21 @@ const groups = computed(() => {
 <template>
   <div class="price-table">
     <section v-for="g in groups" :key="g.title" class="group">
-      <h3>{{ g.title }} <span>{{ g.items.length }} mẫu</span></h3>
+      <h3>{{ g.title }} <span>{{ t('nDesigns', { n: g.items.length }) }}</span></h3>
       <ul>
         <li v-for="f in g.items" :key="f.id" tabindex="0" @click="$emit('open', f)" @keydown.enter="$emit('open', f)">
-          <img :src="f.thumb" :alt="f.name" loading="lazy" referrerpolicy="no-referrer" />
+          <img :src="f.thumb" :alt="trName(f)" loading="lazy" referrerpolicy="no-referrer" />
           <div class="name">
-            <b>{{ f.name }}</b>
-            <small v-if="f.description">{{ f.description.split('\n')[0] }}</small>
+            <b>{{ trName(f) }}</b>
+            <small v-if="trDesc(f)">{{ trDesc(f).split('\n')[0] }}</small>
           </div>
           <div class="prices">
             <template v-if="f.prices?.length">
               <span v-for="v in f.prices" :key="v.label + v.price" class="p">
-                <em v-if="v.label">{{ v.label }}</em>{{ formatPrice(v.price) }}
+                <em v-if="v.label">{{ trVariant(v.label) }}</em>{{ formatPrice(v.price) }}
               </span>
             </template>
-            <span v-else class="p contact">Liên hệ</span>
+            <span v-else class="p contact">{{ t('onRequest') }}</span>
           </div>
         </li>
       </ul>

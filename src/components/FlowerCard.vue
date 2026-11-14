@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { cardPrice, categoryEmoji } from '../composables/useFlowers'
+import { t, trName } from '../i18n'
 
 defineProps({ flower: { type: Object, required: true } })
 defineEmits(['open'])
@@ -14,17 +15,17 @@ const failed = ref(false)
       <img
         v-if="!failed"
         :src="flower.thumb"
-        :alt="flower.name"
+        :alt="trName(flower)"
         loading="lazy"
         referrerpolicy="no-referrer"
         @load="loaded = true"
         @error="failed = true"
       />
       <div v-else class="fallback">{{ categoryEmoji(flower.category) }}</div>
-      <span v-if="flower.prices?.length > 1" class="badge">{{ flower.prices.length }} loại</span>
-      <span class="quick">Xem nhanh</span>
+      <span v-if="flower.prices?.length > 1" class="badge">{{ t('nOptions', { n: flower.prices.length }) }}</span>
+      <span class="quick">{{ t('quickView') }}</span>
     </div>
-    <h3>{{ flower.name }}</h3>
+    <h3>{{ trName(flower) }}</h3>
     <p class="price" :class="{ contact: flower.price == null }">{{ cardPrice(flower) }}</p>
   </article>
 </template>

@@ -5,6 +5,7 @@ import {
 } from '../composables/useFlowers'
 import { scrollToId } from '../router'
 import { shop } from '../shop'
+import { t, trCat } from '../i18n'
 import FlowerCard from './FlowerCard.vue'
 
 const emit = defineEmits(['open'])
@@ -17,12 +18,12 @@ const sections = computed(() =>
     .filter((s) => s.items.length),
 )
 
-const services = [
-  { icon: 'truck', title: 'Giao hỏa tốc', text: 'Tận nơi tại Đà Nẵng: nhà riêng, khách sạn, resort, sân bay' },
-  { icon: 'phone', title: 'Đặt hàng nhanh', text: `Hotline / Zalo ${shop.phone || ''}` },
-  { icon: 'flower', title: 'Hoa tươi 100%', text: 'Tuyển chọn mỗi ngày, thiết kế độc quyền' },
-  { icon: 'chat', title: 'Tư vấn đa ngôn ngữ', text: 'Tiếng Việt · English — nhiệt tình 24/7' },
-]
+const services = computed(() => [
+  { icon: 'truck', title: t('sv1t'), text: t('sv1d') },
+  { icon: 'phone', title: t('sv2t'), text: t('sv2d', { phone: shop.phone || '' }) },
+  { icon: 'flower', title: t('sv3t'), text: t('sv3d') },
+  { icon: 'chat', title: t('sv4t'), text: t('sv4d') },
+])
 </script>
 
 <template>
@@ -30,16 +31,16 @@ const services = [
   <section class="banner">
     <div class="container banner-inner">
       <div class="copy">
-        <p class="kicker">Make someone's day special in Da Nang</p>
-        <h1>Gửi gắm yêu thương<br /><em>qua từng đóa hoa tươi</em></h1>
-        <p class="sub">Hoa bó, hoa chủ đề, kệ hoa chúc mừng… được Zacflower thiết kế tinh tế và giao tận tay người nhận trong ngày.</p>
+        <p class="kicker">{{ t('heroKicker') }}</p>
+        <h1>{{ t('heroTitle1') }}<br /><em>{{ t('heroTitle2') }}</em></h1>
+        <p class="sub">{{ t('heroSub') }}</p>
         <ul class="facts">
           <li v-if="shop.address">📍 {{ shop.address }}</li>
-          <li v-if="shop.phone">☎ {{ shop.phone }} (Zalo / WhatsApp)</li>
+          <li v-if="shop.phone">☎ {{ shop.phone }} {{ t('zaloWa') }}</li>
         </ul>
         <div class="cta">
-          <a href="#categories" class="btn" @click.prevent="scrollToId('categories')">Xem mẫu hoa</a>
-          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn ghost">Gọi đặt hoa</a>
+          <a href="#categories" class="btn" @click.prevent="scrollToId('categories')">{{ t('browse') }}</a>
+          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn ghost">{{ t('callOrder') }}</a>
         </div>
       </div>
       <div class="pics" aria-hidden="true">
@@ -50,7 +51,7 @@ const services = [
           <div class="pic p0 empty">💐</div>
           <div class="pic p1 empty">🌷</div>
         </template>
-        <div class="badge"><b>1,2K+</b><span>khách hàng<br />theo dõi</span></div>
+        <div class="badge"><b>{{ t('followersN') }}</b><span>{{ t('followers') }}</span></div>
       </div>
     </div>
   </section>
@@ -73,8 +74,8 @@ const services = [
   <!-- Danh mục -->
   <section id="categories" class="container block">
     <div class="title">
-      <h2>Shop hoa Zacflower – Cửa hàng hoa tươi tại Đà Nẵng</h2>
-      <p>Chọn danh mục để xem mẫu hoa và bảng giá</p>
+      <h2>{{ t('catTitle') }}</h2>
+      <p>{{ t('catSub') }}</p>
     </div>
 
     <div v-if="loading" class="tiles">
@@ -82,15 +83,15 @@ const services = [
     </div>
     <div v-else-if="error" class="state">
       <p>⚠️ {{ error }}</p>
-      <button class="btn" @click="loadCatalog(true)">Thử lại</button>
+      <button class="btn" @click="loadCatalog(true)">{{ t('retry') }}</button>
     </div>
     <div v-else class="tiles">
       <a v-for="c in categories" :key="c.name" :href="categoryLink(c.name)" class="tile">
-        <img v-if="coverOf(c.name)" :src="coverOf(c.name)" :alt="c.name" loading="lazy" referrerpolicy="no-referrer" />
+        <img v-if="coverOf(c.name)" :src="coverOf(c.name)" :alt="trCat(c.name)" loading="lazy" referrerpolicy="no-referrer" />
         <span v-else class="tile-empty" aria-hidden="true">{{ categoryEmoji(c.name) }}</span>
         <span class="tile-label">
-          <b>{{ c.name }}</b>
-          <small>{{ countBy[c.name] ? `${countBy[c.name]} mẫu` : 'Đang cập nhật' }}</small>
+          <b>{{ trCat(c.name) }}</b>
+          <small>{{ countBy[c.name] ? t('nDesigns', { n: countBy[c.name] }) : t('comingSoon') }}</small>
         </span>
       </a>
     </div>
@@ -99,11 +100,11 @@ const services = [
   <!-- Mẫu hoa theo từng danh mục -->
   <section v-for="s in sections" :key="s.name" class="container block products">
     <div class="sec-head">
-      <h2><a :href="categoryLink(s.name)">{{ s.name }}</a></h2>
+      <h2><a :href="categoryLink(s.name)">{{ trCat(s.name) }}</a></h2>
       <div v-if="s.children.length" class="sub-links">
-        <a v-for="sub in s.children" :key="sub" :href="categoryLink(s.name, sub)">{{ sub }}</a>
+        <a v-for="sub in s.children" :key="sub" :href="categoryLink(s.name, sub)">{{ trCat(sub) }}</a>
       </div>
-      <a :href="categoryLink(s.name)" class="more">Xem tất cả →</a>
+      <a :href="categoryLink(s.name)" class="more">{{ t('viewAll') }}</a>
     </div>
     <div class="grid">
       <FlowerCard v-for="f in s.items" :key="f.id" :flower="f" @open="emit('open', f, s.items)" />
@@ -112,12 +113,12 @@ const services = [
 
   <section v-if="!loading && !error && !sections.length" class="container block">
     <div class="state">
-      <p>🌷 Các mẫu hoa đang được cập nhật. Gọi <a :href="`tel:${shop.tel}`">{{ shop.phone }}</a> để được tư vấn ngay nhé!</p>
+      <p>{{ t('homeEmpty') }} <a :href="`tel:${shop.tel}`">{{ shop.phone }}</a> {{ t('homeEmpty2') }}</p>
     </div>
   </section>
 
   <p v-if="isDemo" class="container demo-note">
-    Đang hiển thị dữ liệu mẫu — cấu hình Google Drive trong <code>.env</code> để hiện mẫu hoa thật.
+    {{ t('demoNote') }}
   </p>
 </template>
 
@@ -152,7 +153,7 @@ h1 em { color: var(--primary-deep); }
   padding: 10px 16px; border-radius: 16px; background: rgba(255,255,255,.92); box-shadow: var(--shadow);
 }
 .badge b { font-family: var(--serif); font-size: 26px; font-weight: 500; color: var(--primary-deep); }
-.badge span { font-size: 12px; color: var(--muted); line-height: 1.3; }
+.badge span { font-size: 12px; color: var(--muted); line-height: 1.3; max-width: 76px; }
 
 /* Dịch vụ */
 .services { background: #faf6f5; border-block: 1px solid var(--line); }

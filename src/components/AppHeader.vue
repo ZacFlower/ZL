@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import { categories, categoryLink, slugify } from '../composables/useFlowers'
 import { go, route, scrollToId } from '../router'
 import { shop } from '../shop'
+import { t, trCat } from '../i18n'
+import LangSwitch from './LangSwitch.vue'
 
 const q = ref('')
 const drawer = ref(false)
@@ -27,7 +29,7 @@ const isActive = (c) => route.value.name === 'category' && route.value.cat === s
 <template>
   <div class="topbar">
     <div class="container topbar-inner">
-      <span>🚀 Giao hỏa tốc tận nơi tại Đà Nẵng · Luôn mở cửa</span>
+      <span>{{ t('topbar') }}</span>
       <span class="right">
         <a v-if="shop.map" :href="shop.map" target="_blank" rel="noopener">📍 {{ shop.address }}</a>
         <a v-if="shop.phone" :href="`tel:${shop.tel}`">☎ {{ shop.phone }}</a>
@@ -37,41 +39,43 @@ const isActive = (c) => route.value.name === 'category' && route.value.cat === s
 
   <header class="header">
     <div class="container main-row">
-      <button class="burger" aria-label="Mở menu" @click="drawer = true">
+      <button class="burger" :aria-label="t('openMenu')" @click="drawer = true">
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
 
-      <a href="#/" class="logo" aria-label="Zacflower – Trang chủ">
+      <a href="#/" class="logo" :aria-label="`Zacflower – ${t('home')}`">
         <span class="mark">✿</span>
-        <span class="word"><b>{{ shop.name }}</b><small>Flower shop · Đà Nẵng</small></span>
+        <span class="word"><b>{{ shop.name }}</b><small>{{ t('tagline') }}</small></span>
       </a>
 
       <form class="search" role="search" @submit.prevent="submit">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <input v-model="q" type="search" placeholder="Tìm theo chủ đề, tên hoa…" aria-label="Tìm mẫu hoa" />
-        <button type="submit">Tìm</button>
+        <input v-model="q" type="search" :placeholder="t('searchPh')" :aria-label="t('searchPh')" />
+        <button type="submit">{{ t('search') }}</button>
       </form>
+
+      <LangSwitch class="lang-top" />
 
       <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="hotline">
         <span class="ring">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         </span>
-        <span class="txt"><small>Hotline đặt hoa</small><b>{{ shop.phone }}</b></span>
+        <span class="txt"><small>{{ t('hotline') }}</small><b>{{ shop.phone }}</b></span>
       </a>
     </div>
 
-    <nav class="nav" aria-label="Danh mục hoa">
+    <nav class="nav" :aria-label="t('categories')">
       <ul class="container">
         <li v-for="c in categories" :key="c.name" :class="{ 'has-sub': c.children.length }">
           <a :href="categoryLink(c.name)" :class="{ active: isActive(c) }">
-            {{ c.name }}
+            {{ trCat(c.name) }}
             <svg v-if="c.children.length" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
           <div v-if="c.children.length" class="dropdown">
-            <a v-for="s in c.children" :key="s" :href="categoryLink(c.name, s)">{{ s }}</a>
+            <a v-for="s in c.children" :key="s" :href="categoryLink(c.name, s)">{{ trCat(s) }}</a>
           </div>
         </li>
-        <li><a href="#contact" @click.prevent="toContact">Liên hệ</a></li>
+        <li><a href="#contact" @click.prevent="toContact">{{ t('contact') }}</a></li>
       </ul>
     </nav>
   </header>
@@ -79,37 +83,38 @@ const isActive = (c) => route.value.name === 'category' && route.value.cat === s
   <!-- Menu trên điện thoại -->
   <Transition name="drawer">
     <div v-if="drawer" class="drawer-wrap" @click.self="drawer = false">
-      <aside class="drawer" aria-label="Menu">
+      <aside class="drawer" :aria-label="t('menu')">
         <div class="drawer-head">
           <span class="logo small"><span class="mark">✿</span><b>{{ shop.name }}</b></span>
-          <button aria-label="Đóng menu" @click="drawer = false">✕</button>
+          <button :aria-label="t('closeMenu')" @click="drawer = false">✕</button>
         </div>
         <form class="search in-drawer" role="search" @submit.prevent="submit">
-          <input v-model="q" type="search" placeholder="Tìm mẫu hoa…" aria-label="Tìm mẫu hoa" />
-          <button type="submit">Tìm</button>
+          <input v-model="q" type="search" :placeholder="t('searchPhShort')" :aria-label="t('searchPhShort')" />
+          <button type="submit">{{ t('search') }}</button>
         </form>
         <ul class="tree">
-          <li><a href="#/">Trang chủ</a></li>
-          <li><a href="#/san-pham">Tất cả mẫu hoa</a></li>
+          <li><a href="#/">{{ t('home') }}</a></li>
+          <li><a href="#/san-pham">{{ t('allFlowers') }}</a></li>
           <li v-for="c in categories" :key="c.name">
             <div class="row">
-              <a :href="categoryLink(c.name)">{{ c.name }}</a>
+              <a :href="categoryLink(c.name)">{{ trCat(c.name) }}</a>
               <button
                 v-if="c.children.length"
                 :aria-expanded="openSub === c.name"
-                :aria-label="`Mở ${c.name}`"
+                :aria-label="trCat(c.name)"
                 @click="openSub = openSub === c.name ? '' : c.name"
               >
                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" :class="{ up: openSub === c.name }"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
             </div>
             <ul v-if="c.children.length && openSub === c.name" class="subtree">
-              <li v-for="s in c.children" :key="s"><a :href="categoryLink(c.name, s)">{{ s }}</a></li>
+              <li v-for="s in c.children" :key="s"><a :href="categoryLink(c.name, s)">{{ trCat(s) }}</a></li>
             </ul>
           </li>
-          <li><a href="#contact" @click.prevent="toContact">Liên hệ</a></li>
+          <li><a href="#contact" @click.prevent="toContact">{{ t('contact') }}</a></li>
         </ul>
-        <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn drawer-call">Gọi {{ shop.phone }}</a>
+        <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn drawer-call">{{ t('callN', { phone: shop.phone }) }}</a>
+        <LangSwitch class="lang-drawer" />
       </aside>
     </div>
   </Transition>
@@ -207,6 +212,7 @@ const isActive = (c) => route.value.name === 'category' && route.value.cat === s
 .subtree { list-style: none; margin: 0 0 8px; padding: 0 0 0 14px; border-left: 2px solid var(--primary-soft); }
 .subtree a { padding: 9px 4px; font-weight: 400; font-size: 14.5px; color: #6d5f62; }
 .drawer-call { margin-top: 18px; }
+.lang-drawer { align-self: center; margin-top: 14px; }
 .drawer-enter-active, .drawer-leave-active { transition: opacity .3s var(--ease); }
 .drawer-enter-active .drawer, .drawer-leave-active .drawer { transition: transform .35s var(--ease); }
 .drawer-enter-from, .drawer-leave-to { opacity: 0; }

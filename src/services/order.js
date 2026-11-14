@@ -4,6 +4,7 @@
  */
 import { shop } from '../shop'
 import { formatPrice } from '../composables/useFlowers'
+import { t } from '../i18n'
 
 export const orderEndpoint = import.meta.env.VITE_ORDER_ENDPOINT || ''
 
@@ -26,7 +27,7 @@ export async function submitOrder(order) {
       redirect: 'follow',
     })
   } catch {
-    throw new Error('Không gửi được đơn do lỗi mạng.')
+    throw new Error(t('netError'))
   }
   let data = null
   try {
@@ -42,7 +43,7 @@ export function orderText(o) {
     `🌸 ĐẶT HOA – ${shop.name}`,
     `Mã đơn: ${o.code}`,
     `Mẫu: ${o.flowerName}${o.variant ? ` (${o.variant})` : ''}`,
-    `Giá: ${o.price ? formatPrice(Number(o.price)) : 'Liên hệ'}`,
+    `Giá: ${o.price ? Number(o.price).toLocaleString('vi-VN') + ' ₫' : 'Liên hệ'}`,
     `Khách: ${o.customerName} – ${o.customerPhone}`,
     `Hình thức: ${o.delivery}`,
     (o.date || o.time_slot) && `Nhận hoa: ${[o.date && formatDate(o.date), o.time_slot].filter(Boolean).join(' · ')}`,

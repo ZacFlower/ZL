@@ -1,6 +1,7 @@
 <script setup>
 import { categories, categoryLink } from '../composables/useFlowers'
 import { shop } from '../shop'
+import { t, trCat } from '../i18n'
 
 const host = (url) => url.replace(/^https?:\/\//, '').replace(/\/$/, '')
 </script>
@@ -10,11 +11,11 @@ const host = (url) => url.replace(/^https?:\/\//, '').replace(/\/$/, '')
     <div class="cta-band">
       <div class="container cta-inner">
         <div>
-          <h3>Cần một bó hoa <em>riêng cho bạn?</em></h3>
-          <p>Kể cho Zacflower nghe dịp đặc biệt của bạn — chúng mình thiết kế và giao tận nơi tại Đà Nẵng. <span>We speak English too!</span></p>
+          <h3>{{ t('ctaTitle1') }} <em>{{ t('ctaTitle2') }}</em></h3>
+          <p>{{ t('ctaText') }} <span>{{ t('ctaEn') }}</span></p>
         </div>
         <div class="cta-actions">
-          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn">Gọi {{ shop.phone }}</a>
+          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn">{{ t('callN', { phone: shop.phone }) }}</a>
           <a v-if="shop.zalo" :href="`https://zalo.me/${shop.zalo}`" target="_blank" rel="noopener" class="btn ghost">Zalo</a>
           <a v-if="shop.whatsapp" :href="`https://wa.me/${shop.whatsapp}`" target="_blank" rel="noopener" class="btn ghost">WhatsApp</a>
         </div>
@@ -24,41 +25,41 @@ const host = (url) => url.replace(/^https?:\/\//, '').replace(/\/$/, '')
     <div class="container cols">
       <div class="col brand">
         <a href="#/" class="logo"><span class="mark">✿</span><b>{{ shop.name }}</b></a>
-        <p>Shop hoa tươi tại Đà Nẵng — hoa bó, hoa chủ đề, kệ hoa chúc mừng, hoa chia buồn. Hoa tuyển chọn 100%, thiết kế độc quyền, giao hỏa tốc tận nơi.</p>
-        <p class="rating">⭐ 84% khách đề xuất · 1,2K người theo dõi trên Facebook</p>
+        <p>{{ t('about') }}</p>
+        <p class="rating">{{ t('rating') }}</p>
       </div>
 
       <div class="col">
-        <h4>Danh mục hoa</h4>
+        <h4>{{ t('flowerCats') }}</h4>
         <ul>
-          <li v-for="c in categories" :key="c.name"><a :href="categoryLink(c.name)">{{ c.name }}</a></li>
+          <li v-for="c in categories" :key="c.name"><a :href="categoryLink(c.name)">{{ trCat(c.name) }}</a></li>
         </ul>
       </div>
 
       <div class="col">
-        <h4>Liên hệ</h4>
+        <h4>{{ t('contact') }}</h4>
         <ul class="info">
           <li v-if="shop.address">📍 <a v-if="shop.map" :href="shop.map" target="_blank" rel="noopener">{{ shop.address }}</a><template v-else>{{ shop.address }}</template></li>
           <li v-if="shop.phone">☎ <a :href="`tel:${shop.tel}`">{{ shop.phone }}</a></li>
-          <li v-if="shop.zalo">💬 Zalo / WhatsApp: {{ shop.phone }}</li>
+          <li v-if="shop.zalo">{{ t('zaloWaLine', { phone: shop.phone }) }}</li>
           <li v-if="shop.website">🌐 <a :href="shop.website" target="_blank" rel="noopener">{{ host(shop.website) }}</a></li>
-          <li>⏰ Luôn mở cửa</li>
+          <li>{{ t('openAlways') }}</li>
         </ul>
       </div>
 
       <div class="col">
-        <h4>Đặt hoa thế nào?</h4>
+        <h4>{{ t('howTo') }}</h4>
         <ol class="steps">
-          <li>Chọn mẫu hoa &amp; loại giá trên web</li>
-          <li>Gửi mã mẫu qua Zalo / hotline</li>
-          <li>Zacflower xác nhận &amp; giao tận nơi</li>
+          <li>{{ t('step1') }}</li>
+          <li>{{ t('step2') }}</li>
+          <li>{{ t('step3') }}</li>
         </ol>
-        <a v-if="shop.map" :href="shop.map" target="_blank" rel="noopener" class="btn soft map">Xem bản đồ</a>
+        <a v-if="shop.map" :href="shop.map" target="_blank" rel="noopener" class="btn soft map">{{ t('viewMap') }}</a>
       </div>
     </div>
 
     <div class="bottom">
-      <div class="container">© {{ new Date().getFullYear() }} {{ shop.name }} · Shop hoa tươi Đà Nẵng · <a href="#/admin" class="admin-link">Quản lý</a></div>
+      <div class="container">© {{ new Date().getFullYear() }} {{ shop.name }} · {{ t('copyright') }} · <a href="#/admin" class="admin-link">{{ t('manage') }}</a></div>
     </div>
   </footer>
 </template>

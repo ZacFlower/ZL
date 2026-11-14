@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { shop } from '../shop'
+import { t } from '../i18n'
 
 const showTop = ref(false)
 const onScroll = () => (showTop.value = window.scrollY > 600)
@@ -10,8 +11,8 @@ const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 </script>
 
 <template>
-  <div class="float" aria-label="Liên hệ nhanh">
-    <a v-if="shop.zalo" :href="`https://zalo.me/${shop.zalo}`" target="_blank" rel="noopener" class="fab zalo" title="Chat Zalo">
+  <div class="float" :aria-label="t('quickContact')">
+    <a v-if="shop.zalo" :href="`https://zalo.me/${shop.zalo}`" target="_blank" rel="noopener" class="fab zalo" :title="t('chatZalo')">
       <span>Zalo</span>
     </a>
     <a v-if="shop.whatsapp" :href="`https://wa.me/${shop.whatsapp}`" target="_blank" rel="noopener" class="fab wa" title="WhatsApp">
@@ -20,11 +21,11 @@ const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
     <a v-if="shop.facebook" :href="shop.facebook" target="_blank" rel="noopener" class="fab fb" title="Facebook">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H8v4h2v8h4v-8h3l1-4h-4V8z"/></svg>
     </a>
-    <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="fab call" title="Gọi ngay">
+    <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="fab call" :title="t('callNow')">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>
     </a>
     <Transition name="fade">
-      <button v-if="showTop" class="fab top" aria-label="Lên đầu trang" @click="toTop">
+      <button v-if="showTop" class="fab top" :aria-label="t('toTop')" @click="toTop">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </Transition>

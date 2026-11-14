@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { categoryLabel, formatPrice } from '../composables/useFlowers'
+import { t, trDesc, trName, trVariant } from '../i18n'
 import OrderForm from './OrderForm.vue'
 
 const props = defineProps({
@@ -41,21 +42,21 @@ onUnmounted(() => {
 
 <template>
   <div class="overlay" @click.self="emit('close')">
-    <div class="modal" role="dialog" aria-modal="true" :aria-label="flower.name">
-      <button class="close" aria-label="Đóng" @click="emit('close')">
+    <div class="modal" role="dialog" aria-modal="true" :aria-label="trName(flower)">
+      <button class="close" :aria-label="t('close')" @click="emit('close')">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
       </button>
 
       <div class="media">
         <Transition name="swap" mode="out-in">
-          <img :key="flower.id" :src="flower.image" :alt="flower.name" referrerpolicy="no-referrer" />
+          <img :key="flower.id" :src="flower.image" :alt="trName(flower)" referrerpolicy="no-referrer" />
         </Transition>
         <div v-if="list.length > 1" class="pager">
-          <button aria-label="Mẫu trước" @click="go(-1)">
+          <button :aria-label="t('prevDesign')" @click="go(-1)">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="m15 6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <span>{{ index + 1 }} / {{ list.length }}</span>
-          <button aria-label="Mẫu sau" @click="go(1)">
+          <button :aria-label="t('nextDesign')" @click="go(1)">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </div>
@@ -63,30 +64,30 @@ onUnmounted(() => {
 
       <div class="detail">
         <span class="cat">{{ categoryLabel(flower) }}</span>
-        <h2>{{ flower.name }}</h2>
-        <ul v-if="flower.prices?.length > 1" class="variants" aria-label="Bảng giá">
+        <h2>{{ trName(flower) }}</h2>
+        <ul v-if="flower.prices?.length > 1" class="variants" :aria-label="t('priceTable')">
           <li v-for="v in flower.prices" :key="v.label + v.price">
-            <span>{{ v.label || 'Tiêu chuẩn' }}</span>
+            <span>{{ v.label ? trVariant(v.label) : t('standard') }}</span>
             <i aria-hidden="true" />
             <b>{{ formatPrice(v.price) }}</b>
           </li>
         </ul>
         <p v-else class="price">{{ formatPrice(flower.price) }}</p>
-        <p v-if="flower.description" class="desc">{{ flower.description }}</p>
+        <p v-if="trDesc(flower)" class="desc">{{ trDesc(flower) }}</p>
 
         <ul class="perks">
-          <li><span>💐</span>Hoa tươi tuyển chọn 100%, thiết kế độc quyền</li>
-          <li><span>🚀</span>Giao hỏa tốc tận nơi tại Đà Nẵng</li>
-          <li><span>💬</span>Tư vấn đa ngôn ngữ, nhiệt tình</li>
+          <li><span>💐</span>{{ t('perk1') }}</li>
+          <li><span>🚀</span>{{ t('perk2') }}</li>
+          <li><span>💬</span>{{ t('perk3') }}</li>
         </ul>
 
         <div class="actions">
-          <button class="btn" @click="ordering = true">🌸 Đặt hoa ngay</button>
-          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn ghost">Gọi</a>
+          <button class="btn" @click="ordering = true">{{ t('orderNow') }}</button>
+          <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn ghost">{{ t('call') }}</a>
           <a v-if="zaloLink" :href="zaloLink" target="_blank" rel="noopener" class="btn ghost">Zalo</a>
           <a v-if="shop.whatsapp" :href="`https://wa.me/${shop.whatsapp}`" target="_blank" rel="noopener" class="btn ghost">WhatsApp</a>
         </div>
-        <p class="hint">Mã mẫu <code>{{ flower.id.slice(0, 10) }}</code> · gửi kèm khi đặt hoa nhé</p>
+        <p class="hint">{{ t('codeHint1') }} <code>{{ flower.id.slice(0, 10) }}</code> · {{ t('codeHint2') }}</p>
       </div>
     </div>
 
