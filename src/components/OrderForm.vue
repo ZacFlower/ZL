@@ -5,6 +5,7 @@ import {
   copyText, makeOrderCode, orderEndpoint, orderText, submitOrder, whatsappLink, zaloLink,
 } from '../services/order'
 import { shop } from '../shop'
+import { t, trName, trVariant } from '../i18n'
 
 const props = defineProps({ flower: { type: Object, required: true } })
 const emit = defineEmits(['close'])
@@ -56,10 +57,10 @@ function validate() {
     error.value = msg
     return false
   }
-  if (form.customerName.trim().length < 2) return fail('customerName', 'Vui lòng nhập họ tên của bạn.')
+  if (form.customerName.trim().length < 2) return fail('customerName', t('errName'))
   const phone = form.customerPhone.replace(/[^\d+]/g, '')
-  if (phone.length < 9 || phone.length > 15) return fail('customerPhone', 'Số điện thoại chưa đúng.')
-  if (form.delivery === 'Giao tận nơi' && !form.address.trim()) return fail('address', 'Vui lòng nhập địa chỉ giao hoa.')
+  if (phone.length < 9 || phone.length > 15) return fail('customerPhone', t('errPhone'))
+  if (form.delivery === 'Giao tận nơi' && !form.address.trim()) return fail('address', t('errAddress'))
   return true
 }
 
@@ -127,82 +128,82 @@ async function openZalo() {
 
 <template>
   <div class="overlay" @click.self="!sending && emit('close')">
-    <section class="sheet" role="dialog" aria-modal="true" aria-label="Đặt hoa">
+    <section class="sheet" role="dialog" aria-modal="true" :aria-label="t('orderTitle')">
       <header>
         <img :src="flower.thumb" alt="" referrerpolicy="no-referrer" />
         <div>
-          <small>{{ step === 'form' ? 'Đặt hoa' : 'Đơn hàng' }}</small>
-          <b>{{ flower.name }}</b>
-          <span>{{ selectedPrice ? formatPrice(selectedPrice.price) : 'Giá liên hệ' }}</span>
+          <small>{{ step === 'form' ? t('orderTitle') : t('orderDone') }}</small>
+          <b>{{ trName(flower) }}</b>
+          <span>{{ formatPrice(selectedPrice ? selectedPrice.price : null) }}</span>
         </div>
-        <button class="x" aria-label="Đóng" :disabled="sending" @click="emit('close')">✕</button>
+        <button class="x" :aria-label="t('close')" :disabled="sending" @click="emit('close')">✕</button>
       </header>
 
       <!-- Bước 1: điền thông tin -->
       <form v-if="step === 'form'" class="body" novalidate @submit.prevent="submit">
         <fieldset v-if="prices.length > 1" class="variants">
-          <legend>Chọn loại</legend>
+          <legend>{{ t('chooseOption') }}</legend>
           <label v-for="(p, i) in prices" :key="i" :class="{ on: form.variantIndex === i }">
             <input v-model="form.variantIndex" type="radio" :value="i" name="variant" />
-            <span>{{ p.label || 'Tiêu chuẩn' }}</span>
+            <span>{{ p.label ? trVariant(p.label) : t('standard') }}</span>
             <b>{{ formatPrice(p.price) }}</b>
           </label>
         </fieldset>
 
         <div class="grid2">
           <label class="field" :class="{ bad: errorField === 'customerName' }">
-            <span>Họ tên của bạn *</span>
-            <input v-model="form.customerName" type="text" autocomplete="name" placeholder="Nguyễn Văn A" />
+            <span>{{ t('yourName') }}</span>
+            <input v-model="form.customerName" type="text" autocomplete="name" :placeholder="t('namePh')" />
           </label>
           <label class="field" :class="{ bad: errorField === 'customerPhone' }">
-            <span>Số điện thoại / Zalo *</span>
+            <span>{{ t('yourPhone') }}</span>
             <input v-model="form.customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="09xx xxx xxx" />
           </label>
         </div>
 
-        <div class="seg" role="radiogroup" aria-label="Hình thức nhận hoa">
-          <label :class="{ on: form.delivery === 'Giao tận nơi' }"><input v-model="form.delivery" type="radio" value="Giao tận nơi" />🚀 Giao tận nơi</label>
-          <label :class="{ on: form.delivery === 'Nhận tại shop' }"><input v-model="form.delivery" type="radio" value="Nhận tại shop" />🏠 Nhận tại shop</label>
+        <div class="seg" role="radiogroup" :aria-label="t('deliveryAria')">
+          <label :class="{ on: form.delivery === 'Giao tận nơi' }"><input v-model="form.delivery" type="radio" value="Giao tận nơi" />🚀 {{ t('delivery') }}</label>
+          <label :class="{ on: form.delivery === 'Nhận tại shop' }"><input v-model="form.delivery" type="radio" value="Nhận tại shop" />🏠 {{ t('pickup') }}</label>
         </div>
 
         <div class="grid2">
           <label class="field">
-            <span>Ngày nhận hoa</span>
+            <span>{{ t('date') }}</span>
             <input v-model="form.date" type="date" :min="iso(today)" />
           </label>
           <label class="field">
-            <span>Khung giờ</span>
+            <span>{{ t('timeSlot') }}</span>
             <select v-model="form.time_slot">
-              <option v-for="t in TIME_SLOTS" :key="t" :value="t">{{ t }}</option>
+              <option v-for="slot in TIME_SLOTS" :key="slot" :value="slot">{{ slot === TIME_SLOTS[0] ? t('asap') : slot }}</option>
             </select>
           </label>
         </div>
 
         <template v-if="form.delivery === 'Giao tận nơi'">
           <label class="field" :class="{ bad: errorField === 'address' }">
-            <span>Địa chỉ giao hoa *</span>
-            <input v-model="form.address" type="text" autocomplete="street-address" placeholder="Số nhà, đường, phường… (khách sạn / resort ghi kèm số phòng)" />
+            <span>{{ t('address') }}</span>
+            <input v-model="form.address" type="text" autocomplete="street-address" :placeholder="t('addressPh')" />
           </label>
           <div class="grid2">
             <label class="field">
-              <span>Tên người nhận</span>
-              <input v-model="form.recipientName" type="text" placeholder="Nếu tặng người khác" />
+              <span>{{ t('recipient') }}</span>
+              <input v-model="form.recipientName" type="text" :placeholder="t('recipientPh')" />
             </label>
             <label class="field">
-              <span>SĐT người nhận</span>
-              <input v-model="form.recipientPhone" type="tel" inputmode="tel" placeholder="Để shipper liên hệ" />
+              <span>{{ t('recipientPhone') }}</span>
+              <input v-model="form.recipientPhone" type="tel" inputmode="tel" :placeholder="t('recipientPhonePh')" />
             </label>
           </div>
         </template>
-        <p v-else class="pickup">📍 Nhận tại: {{ shop.address }}</p>
+        <p v-else class="pickup">{{ t('pickupAt', { addr: shop.address }) }}</p>
 
         <label class="field">
-          <span>Lời nhắn trên thiệp</span>
-          <textarea v-model="form.cardMessage" rows="2" maxlength="300" placeholder="VD: Chúc mừng sinh nhật em yêu ❤️" />
+          <span>{{ t('cardMsg') }}</span>
+          <textarea v-model="form.cardMessage" rows="2" maxlength="300" :placeholder="t('cardMsgPh')" />
         </label>
         <label class="field">
-          <span>Ghi chú thêm</span>
-          <textarea v-model="form.note" rows="2" maxlength="500" placeholder="Màu giấy gói, thay đổi hoa, xuất hóa đơn…" />
+          <span>{{ t('note') }}</span>
+          <textarea v-model="form.note" rows="2" maxlength="500" :placeholder="t('notePh')" />
         </label>
 
         <!-- ô ẩn chống spam -->
@@ -210,47 +211,46 @@ async function openZalo() {
 
         <p v-if="error" class="err" role="alert">{{ error }}</p>
         <button type="submit" class="btn submit" :disabled="sending">
-          {{ sending ? 'Đang gửi đơn…' : orderEndpoint ? 'Gửi đơn đặt hoa' : 'Tiếp tục đặt qua Zalo / WhatsApp' }}
+          {{ sending ? t('sending') : orderEndpoint ? t('sendOrder') : t('continueChat') }}
         </button>
-        <p class="small">Zacflower sẽ gọi / nhắn Zalo xác nhận đơn và phí giao trước khi cắm hoa.</p>
+        <p class="small">{{ t('confirmNote') }}</p>
       </form>
 
       <!-- Bước 2: kết quả -->
       <div v-else class="body done">
         <div v-if="status === 'sent'" class="result ok">
           <div class="icon">✓</div>
-          <h3>Đã gửi đơn {{ order.code }}</h3>
-          <p>Cảm ơn bạn! Zacflower sẽ liên hệ <b>{{ order.customerPhone }}</b> để xác nhận trong ít phút.
-            Muốn được phản hồi nhanh hơn, gửi luôn đơn qua Zalo hoặc WhatsApp nhé.</p>
+          <h3>{{ t('sentTitle', { code: order.code }) }}</h3>
+          <p>{{ t('sentText1') }} <b>{{ order.customerPhone }}</b> {{ t('sentText2') }}</p>
         </div>
         <div v-else-if="status === 'failed'" class="result warn">
           <div class="icon">!</div>
-          <h3>Chưa gửi được đơn tự động</h3>
-          <p>{{ error }} Bạn gửi đơn qua Zalo hoặc WhatsApp bên dưới để shop nhận ngay nhé.</p>
+          <h3>{{ t('failTitle') }}</h3>
+          <p>{{ error }} {{ t('failText') }}</p>
         </div>
         <div v-else class="result">
           <div class="icon">💬</div>
-          <h3>Gửi đơn cho Zacflower</h3>
-          <p>Chọn Zalo hoặc WhatsApp để gửi đơn. Nội dung đơn đã được soạn sẵn bên dưới.</p>
+          <h3>{{ t('manualTitle') }}</h3>
+          <p>{{ t('manualText') }}</p>
         </div>
 
         <div class="send">
           <button v-if="shop.zalo" class="btn zalo" @click="openZalo">
-            <span class="z">Zalo</span> Mở Zalo &amp; dán đơn
+            <span class="z">Zalo</span> {{ t('openZalo') }}
           </button>
           <a v-if="shop.whatsapp" :href="whatsappLink(text)" target="_blank" rel="noopener" class="btn wa">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.4-.3z"/></svg>
-            Gửi qua WhatsApp
+            {{ t('sendWa') }}
           </a>
         </div>
-        <p v-if="shop.zalo" class="small">Zalo không cho điền sẵn tin nhắn: đơn được <b>tự sao chép</b>, bạn chỉ cần <b>dán</b> (giữ ô chat → Dán) rồi gửi.</p>
+        <p v-if="shop.zalo" class="small">{{ t('zaloHint') }}</p>
 
         <div class="summary">
           <pre>{{ text }}</pre>
-          <button class="copy" @click="copy">{{ copied ? '✓ Đã sao chép' : 'Sao chép' }}</button>
+          <button class="copy" @click="copy">{{ copied ? t('copied') : t('copy') }}</button>
         </div>
 
-        <button class="btn ghost close-btn" @click="emit('close')">Xong</button>
+        <button class="btn ghost close-btn" @click="emit('close')">{{ t('done') }}</button>
       </div>
     </section>
   </div>

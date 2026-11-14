@@ -131,7 +131,7 @@ async function listChildren(folderId) {
 }
 
 const toItem = (f, folderId) => {
-  const { prices, description } = parseDescription(f.description || '')
+  const { prices, description, nameEn, descriptionEn } = parseDescription(f.description || '')
   const ext = (f.name.match(/\.[^.]+$/) || [''])[0]
   return {
     id: f.id,
@@ -141,6 +141,8 @@ const toItem = (f, folderId) => {
     folderId,
     prices,
     description,
+    nameEn,
+    descriptionEn,
     createdTime: f.createdTime,
     thumb: f.thumbnailLink ? f.thumbnailLink.replace(/=s\d+$/, '=s400') : imageUrl(f.id, 400),
   }

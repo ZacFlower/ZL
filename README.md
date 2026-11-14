@@ -136,6 +136,16 @@ Mặc định: `vinhq1618@gmail.com`. Ô **B3** là tiêu đề email.
 > Sửa `Code.gs` sau này thì phải **Triển khai → Quản lý triển khai → ✏️ → Phiên bản mới → Triển khai** (URL giữ nguyên).
 > Gmail cá nhân gửi tối đa ~100 email/ngày qua Apps Script.
 
+## Song ngữ Việt / English
+
+- Nút **VI | EN** ở đầu trang (và trong menu điện thoại). Lần đầu web tự chọn theo ngôn ngữ trình duyệt của khách, sau đó nhớ lựa chọn.
+- Toàn bộ chữ giao diện nằm trong [`src/i18n.js`](src/i18n.js) (mỗi dòng: `[tiếng Việt, English]`) — sửa câu chữ ở đó.
+- Tên danh mục được dịch sẵn (Hoa bó → *Bouquets*, Kệ hoa khai trương → *Grand opening stands*…). Thêm danh mục mới thì bổ sung vào bảng `CATS` trong `src/i18n.js`.
+- **Tên / mô tả tiếng Anh của từng mẫu**: trong trang quản lý → *Sửa* → mục **🇬🇧 Tiếng Anh**.
+  Để trống thì web tự dịch phần đầu tên theo mã (*Bó hoa HB01* → *Bouquet HB01*, *Lan hồ điệp LD03* → *Phalaenopsis orchid LD03*).
+  Trên Drive, phần này được lưu trong ô Mô tả dạng `Tên EN: …` và `Mô tả EN: …`.
+- Đơn đặt hoa gửi cho shop (email, Zalo, WhatsApp) luôn bằng tiếng Việt.
+
 ## Build & deploy
 
 ```bash

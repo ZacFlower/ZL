@@ -4,6 +4,7 @@
 import { computed, ref } from 'vue'
 import { fetchFlowersFromDrive, isDriveConfigured } from '../services/drive'
 import { demoData } from '../data/demo'
+import { lang, t, trCat, trName } from '../i18n'
 
 export const ALL = 'Tất cả'
 
@@ -39,12 +40,17 @@ const normalize = (s = '') =>
 export const categoryLink = (cat, sub) => `#/danh-muc/${slugify(cat)}${sub ? `/${slugify(sub)}` : ''}`
 
 export const PRICE_RANGES = [
-  { id: 'duoi-350k', label: 'Dưới 350.000 ₫', min: 0, max: 350000 },
-  { id: '350k-500k', label: '350.000 ₫ – 500.000 ₫', min: 350000, max: 500000 },
-  { id: '500k-700k', label: '500.000 ₫ – 700.000 ₫', min: 500000, max: 700000 },
-  { id: '700k-1tr', label: '700.000 ₫ – 1.000.000 ₫', min: 700000, max: 1000000 },
-  { id: 'tren-1tr', label: 'Trên 1.000.000 ₫', min: 1000000, max: Infinity },
+  { id: 'duoi-350k', min: 0, max: 350000 },
+  { id: '350k-500k', min: 350000, max: 500000 },
+  { id: '500k-700k', min: 500000, max: 700000 },
+  { id: '700k-1tr', min: 700000, max: 1000000 },
+  { id: 'tren-1tr', min: 1000000, max: Infinity },
 ]
+export const rangeLabel = (r) => {
+  if (!r.min) return t('under', { a: formatPrice(r.max) })
+  if (r.max === Infinity) return t('over', { a: formatPrice(r.min) })
+  return `${formatPrice(r.min)} – ${formatPrice(r.max)}`
+}
 
 /** Lọc + sắp xếp mẫu hoa */
 export function queryFlowers({ category, sub, q = '', range = '', sort = 'newest' } = {}) {
@@ -55,7 +61,11 @@ export function queryFlowers({ category, sub, q = '', range = '', sort = 'newest
       (!category || f.category === category) &&
       (!sub || f.subcategory === sub) &&
       (!r || (f.price != null && f.price >= r.min && f.price < r.max)) &&
-      (!nq || normalize(`${f.name} ${f.category} ${f.subcategory || ''} ${f.description}`).includes(nq)),
+      (!nq ||
+        normalize(
+          `${f.name} ${f.nameEn || ''} ${trName(f)} ${f.category} ${trCat(f.category)} ` +
+            `${f.subcategory || ''} ${f.subcategory ? trCat(f.subcategory) : ''} ${f.description} ${f.descriptionEn || ''}`,
+        ).includes(nq)),
   )
   const byPrice = (dir) => (a, b) => {
     if (a.price == null) return 1
@@ -83,16 +93,17 @@ export const countBy = computed(() => {
 })
 
 export const formatPrice = (p) =>
-  p == null ? 'Liên hệ' : p.toLocaleString('vi-VN') + ' ₫'
+  p == null ? t('onRequest') : p.toLocaleString(lang.value === 'en' ? 'en-US' : 'vi-VN') + ' ₫'
 
 /** Giá hiển thị trên thẻ: 1 giá → "450.000 ₫", nhiều loại → "Từ 350.000 ₫" */
 export const cardPrice = (f) => {
   const n = f.prices?.length || 0
   if (!n) return formatPrice(f.price)
-  return (n > 1 ? 'Từ ' : '') + formatPrice(f.price)
+  return (n > 1 ? t('from') : '') + formatPrice(f.price)
 }
 
-export const categoryLabel = (f) => (f.subcategory ? `${f.category} · ${f.subcategory}` : f.category)
+export const categoryLabel = (f) =>
+  f.subcategory ? `${trCat(f.category)} · ${trCat(f.subcategory)}` : trCat(f.category)
 
 /** Biểu tượng minh hoạ cho danh mục chưa có ảnh */
 export function categoryEmoji(name = '') {

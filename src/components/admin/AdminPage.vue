@@ -130,7 +130,7 @@ async function onSave(p) {
   busy.value = true
   editorError.value = ''
   try {
-    const description = composeDescription(p.prices, p.description)
+    const description = composeDescription(p.prices, p.description, { nameEn: p.nameEn, descriptionEn: p.descriptionEn })
     const item = editor.value.item
     if (!item) {
       await uploadImage(p.file, { name: p.name, description, folderId: p.folderId })

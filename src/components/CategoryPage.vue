@@ -1,10 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import {
-  ALL, PRICE_RANGES, categories, categoryLink, countBy, error, loadCatalog, loading, queryFlowers, slugify,
+  ALL, PRICE_RANGES, categories, categoryLink, countBy, error, loadCatalog, loading, queryFlowers, rangeLabel, slugify,
 } from '../composables/useFlowers'
 import { go, route } from '../router'
 import { shop } from '../shop'
+import { t, trCat } from '../i18n'
 import FlowerCard from './FlowerCard.vue'
 import PriceTable from './PriceTable.vue'
 
@@ -33,17 +34,17 @@ const list = computed(() =>
 )
 
 const title = computed(() => {
-  if (current.value.sub) return current.value.sub
-  if (current.value.cat) return current.value.cat.name
-  return q.value ? `Kết quả cho “${q.value}”` : 'Tất cả mẫu hoa'
+  if (current.value.sub) return trCat(current.value.sub)
+  if (current.value.cat) return trCat(current.value.cat.name)
+  return q.value ? t('resultsFor', { q: q.value }) : t('allFlowers')
 })
 
 const crumbs = computed(() => {
-  const c = [{ label: 'Trang chủ', href: '#/' }]
+  const c = [{ label: t('home'), href: '#/' }]
   const { cat, sub } = current.value
-  if (cat) c.push({ label: cat.name, href: categoryLink(cat.name) })
-  if (sub) c.push({ label: sub, href: categoryLink(cat.name, sub) })
-  if (!cat) c.push({ label: q.value ? 'Tìm kiếm' : 'Tất cả mẫu hoa', href: '#/san-pham' })
+  if (cat) c.push({ label: trCat(cat.name), href: categoryLink(cat.name) })
+  if (sub) c.push({ label: trCat(sub), href: categoryLink(cat.name, sub) })
+  if (!cat) c.push({ label: q.value ? t('searchCrumb') : t('allFlowers'), href: '#/san-pham' })
   return c
 })
 
@@ -54,7 +55,7 @@ const openFlower = (f) => emit('open', f, list.value)
 
 <template>
   <div class="page container">
-    <nav class="crumbs" aria-label="Đường dẫn">
+    <nav class="crumbs" :aria-label="t('breadcrumb')">
       <template v-for="(c, i) in crumbs" :key="c.href">
         <a v-if="i < crumbs.length - 1" :href="c.href">{{ c.label }}</a>
         <span v-else aria-current="page">{{ c.label }}</span>
@@ -67,19 +68,19 @@ const openFlower = (f) => emit('open', f, list.value)
       <!-- Cột trái -->
       <aside class="sidebar">
         <section class="box">
-          <h4>Danh mục</h4>
+          <h4>{{ t('categories') }}</h4>
           <ul class="tree">
             <li>
-              <a href="#/san-pham" :class="{ active: !current.cat && !q }">Tất cả mẫu hoa <span>{{ countBy[ALL] || 0 }}</span></a>
+              <a href="#/san-pham" :class="{ active: !current.cat && !q }">{{ t('allFlowers') }} <span>{{ countBy[ALL] || 0 }}</span></a>
             </li>
             <li v-for="c in categories" :key="c.name">
               <a :href="categoryLink(c.name)" :class="{ active: current.cat?.name === c.name && !current.sub }">
-                {{ c.name }} <span>{{ countBy[c.name] || 0 }}</span>
+                {{ trCat(c.name) }} <span>{{ countBy[c.name] || 0 }}</span>
               </a>
               <ul v-if="c.children.length" class="subtree">
                 <li v-for="s in c.children" :key="s">
                   <a :href="categoryLink(c.name, s)" :class="{ active: current.cat?.name === c.name && current.sub === s }">
-                    {{ s }} <span>{{ subCount(c.name, s) }}</span>
+                    {{ trCat(s) }} <span>{{ subCount(c.name, s) }}</span>
                   </a>
                 </li>
               </ul>
@@ -88,20 +89,20 @@ const openFlower = (f) => emit('open', f, list.value)
         </section>
 
         <section class="box">
-          <h4>Khoảng giá</h4>
+          <h4>{{ t('priceRange') }}</h4>
           <label class="radio">
             <input v-model="range" type="radio" value="" name="range" />
-            <span>Tất cả mức giá</span>
+            <span>{{ t('allPrices') }}</span>
           </label>
           <label v-for="r in PRICE_RANGES" :key="r.id" class="radio">
             <input v-model="range" type="radio" :value="r.id" name="range" />
-            <span>{{ r.label }}</span>
+            <span>{{ rangeLabel(r) }}</span>
           </label>
         </section>
 
         <section class="box help">
-          <b>Cần tư vấn mẫu hoa?</b>
-          <p>Zacflower luôn mở cửa, hỗ trợ tiếng Việt &amp; English.</p>
+          <b>{{ t('helpTitle') }}</b>
+          <p>{{ t('helpText') }}</p>
           <a v-if="shop.phone" :href="`tel:${shop.tel}`" class="btn">☎ {{ shop.phone }}</a>
         </section>
       </aside>
@@ -111,42 +112,42 @@ const openFlower = (f) => emit('open', f, list.value)
         <!-- Bộ lọc trên điện thoại -->
         <div class="m-filters">
           <div class="m-chips">
-            <a href="#/san-pham" :class="{ on: !current.cat }">Tất cả</a>
-            <a v-for="c in categories" :key="c.name" :href="categoryLink(c.name)" :class="{ on: current.cat?.name === c.name }">{{ c.name }}</a>
+            <a href="#/san-pham" :class="{ on: !current.cat }">{{ t('all') }}</a>
+            <a v-for="c in categories" :key="c.name" :href="categoryLink(c.name)" :class="{ on: current.cat?.name === c.name }">{{ trCat(c.name) }}</a>
           </div>
           <div v-if="current.cat?.children.length" class="m-chips sub">
-            <a :href="categoryLink(current.cat.name)" :class="{ on: !current.sub }">Tất cả</a>
-            <a v-for="s in current.cat.children" :key="s" :href="categoryLink(current.cat.name, s)" :class="{ on: current.sub === s }">{{ s }}</a>
+            <a :href="categoryLink(current.cat.name)" :class="{ on: !current.sub }">{{ t('all') }}</a>
+            <a v-for="s in current.cat.children" :key="s" :href="categoryLink(current.cat.name, s)" :class="{ on: current.sub === s }">{{ trCat(s) }}</a>
           </div>
-          <select v-model="range" aria-label="Khoảng giá">
-            <option value="">Mọi mức giá</option>
-            <option v-for="r in PRICE_RANGES" :key="r.id" :value="r.id">{{ r.label }}</option>
+          <select v-model="range" :aria-label="t('priceRange')">
+            <option value="">{{ t('anyPrice') }}</option>
+            <option v-for="r in PRICE_RANGES" :key="r.id" :value="r.id">{{ rangeLabel(r) }}</option>
           </select>
         </div>
 
         <div class="bar">
           <p class="count">
-            <b>{{ list.length }}</b> mẫu hoa
+            <b>{{ list.length }}</b> {{ t('designsUnit') }}
             <button v-if="q" class="clear" @click="clearSearch">“{{ q }}” ✕</button>
           </p>
           <div class="tools">
-            <div class="views" role="radiogroup" aria-label="Kiểu hiển thị">
+            <div class="views" role="radiogroup" :aria-label="t('viewMode')">
               <button role="radio" :aria-checked="view === 'grid'" :class="{ on: view === 'grid' }" @click="view = 'grid'">
                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="4" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="13" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="13" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-                <span>Lưới</span>
+                <span>{{ t('grid') }}</span>
               </button>
               <button role="radio" :aria-checked="view === 'table'" :class="{ on: view === 'table' }" @click="view = 'table'">
                 <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                <span>Bảng giá</span>
+                <span>{{ t('priceList') }}</span>
               </button>
             </div>
             <label class="sort">
-              <span>Sắp xếp:</span>
+              <span>{{ t('sortBy') }}</span>
               <select v-model="sort">
-                <option value="newest">Mới nhất</option>
-                <option value="price-asc">Giá tăng dần</option>
-                <option value="price-desc">Giá giảm dần</option>
-                <option value="name">Tên A–Z</option>
+                <option value="newest">{{ t('newest') }}</option>
+                <option value="price-asc">{{ t('priceAsc') }}</option>
+                <option value="price-desc">{{ t('priceDesc') }}</option>
+                <option value="name">{{ t('nameAZ') }}</option>
               </select>
             </label>
           </div>
@@ -157,16 +158,16 @@ const openFlower = (f) => emit('open', f, list.value)
         </div>
         <div v-else-if="error" class="state">
           <p>⚠️ {{ error }}</p>
-          <button class="btn" @click="loadCatalog(true)">Thử lại</button>
+          <button class="btn" @click="loadCatalog(true)">{{ t('retry') }}</button>
         </div>
         <div v-else-if="notFound" class="state">
-          <p>Không tìm thấy danh mục này.</p>
-          <a href="#/san-pham" class="btn soft">Xem tất cả mẫu hoa</a>
+          <p>{{ t('catNotFound') }}</p>
+          <a href="#/san-pham" class="btn soft">{{ t('allFlowers') }}</a>
         </div>
         <div v-else-if="!list.length" class="state">
-          <p v-if="q || range">Không có mẫu hoa phù hợp với bộ lọc.</p>
-          <p v-else>Danh mục này đang cập nhật mẫu mới.<br />Gọi <a :href="`tel:${shop.tel}`">{{ shop.phone }}</a> để Zacflower tư vấn mẫu phù hợp nhé!</p>
-          <button v-if="range" class="btn soft" @click="range = ''">Bỏ lọc giá</button>
+          <p v-if="q || range">{{ t('noMatch') }}</p>
+          <p v-else>{{ t('catUpdating') }}<br />{{ t('callUs') }} <a :href="`tel:${shop.tel}`">{{ shop.phone }}</a> {{ t('callUs2') }}</p>
+          <button v-if="range" class="btn soft" @click="range = ''">{{ t('clearPrice') }}</button>
         </div>
         <PriceTable v-else-if="view === 'table'" :flowers="list" @open="openFlower" />
         <div v-else class="grid">
