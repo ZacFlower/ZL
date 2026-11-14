@@ -88,6 +88,10 @@ const M = {
   homeEmpty: ['🌷 Các mẫu hoa đang được cập nhật. Gọi', '🌷 New designs are on the way. Call'],
   homeEmpty2: ['để được tư vấn ngay nhé!', 'for help right away!'],
   retry: ['Thử lại', 'Try again'],
+  errNotConfigured: [
+    'Web chưa kết nối được kho mẫu hoa (thiếu cấu hình Google Drive). Vui lòng gọi hotline để xem mẫu và đặt hoa.',
+    'The flower catalogue isn’t connected yet (Google Drive settings missing). Please call our hotline to see designs and order.',
+  ],
   demoNote: [
     'Đang hiển thị dữ liệu mẫu — cấu hình Google Drive trong .env để hiện mẫu hoa thật.',
     'Showing sample data — configure Google Drive in .env to show real flowers.',
