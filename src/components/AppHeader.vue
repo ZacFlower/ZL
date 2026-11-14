@@ -234,4 +234,10 @@ const isActive = (c) => route.value.name === 'category' && route.value.cat === s
   .main-row .search { order: 3; flex-basis: 100%; max-width: none; height: 42px; }
   .ring { width: 38px; height: 38px; }
 }
+/* Điện thoại nhỏ: ẩn nút gọi ở đầu trang (đã có nút gọi nổi góc phải) để logo + VI/EN nằm gọn 1 dòng */
+@media (max-width: 480px) {
+  .hotline { display: none; }
+  .main-row { gap: 10px 8px; }
+  .word small { letter-spacing: .04em; }
+}
 </style>
